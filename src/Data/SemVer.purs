@@ -5,23 +5,32 @@ import Prelude
 import Data.Maybe
 
 foreign import data Version :: *
-foreign import satisfies :: Version -> String -> Boolean
-foreign import valid :: String -> Maybe Version
-foreign import clean :: String -> Maybe Version
+foreign import data Range :: *
 
-foreign import _gt :: Version -> Version -> Boolean
-foreign import _lt :: Version -> Version -> Boolean
+foreign import parseVersion :: String -> Maybe Version
+foreign import parseVersionLoose :: String -> Maybe Version
+foreign import versionToString :: Version -> String
 
-foreign import toString :: Version -> String
+foreign import major :: Version -> Int
+foreign import minor :: Version -> Int
+foreign import patch :: Version -> Int
+
+foreign import parseRange :: String -> Maybe Range
+foreign import parseRangeLoose :: String -> Maybe Range
+foreign import rangeToString :: Range -> String
+
+foreign import satisfies :: Version -> Range -> Boolean
+
+foreign import compareVersions :: Version -> Version -> Ordering
 
 instance showVersion :: Show Version where
-  show = ("v" ++) <<< toString
+  show = ("v" ++) <<< versionToString
 
 instance eqVersion :: Eq Version where
-  eq a b = toString a == toString b
+  eq a b = compareVersions a b == EQ
 
 instance ordVersion :: Ord Version where
-  compare a b = if a == b then EQ
-                else if _lt a b
-                     then LT
-                     else GT
+  compare = compareVersions
+
+instance showRange :: Show Range where
+  show = show <<< rangeToString
